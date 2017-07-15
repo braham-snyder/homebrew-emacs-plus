@@ -35,9 +35,13 @@ class EmacsPlus < Formula
   option "with-x11",
          "Experimental: build with x11 support"
   option "with-no-title-bars",
-         "Experimental: build with a patch for no title bars on frames (--HEAD has this built-in via undecorated flag)"
+         "Experimental: build with a patch for no title bars on frames " \
+         "(--HEAD has this built-in via `undecorated` flag)"
   option "with-natural-title-bar",
          "Experimental: use a title bar colour inferred by your theme"
+  option "with-ns-set-application-icon",
+         "Experimental: add elisp function for dynamically changing the " \
+         "current Emacs instance's application icon"
 
   deprecated_option "cocoa" => "with-cocoa"
   deprecated_option "keep-ctags" => "with-ctags"
@@ -94,6 +98,17 @@ class EmacsPlus < Formula
     patch do
       url "https://gist.githubusercontent.com/aaronjensen/f45894ddf431ecbff78b1bcf533d3e6b/raw/6a5cd7f57341aba673234348d8b0d2e776f86719/Emacs-25-OS-X-use-vfork.patch"
       sha256 "f2fdbc5adab80f1af01ce120cf33e3b0590d7ae29538999287986beb55ec9ada"
+    end
+  end
+
+  if build.with? "ns-set-application-icon"
+    if build.head? or build.devel?
+      opoo "--with-ns-set-application-icon untested on --HEAD and --devel"
+    end
+
+    patch do
+      url "https://gist.githubusercontent.com/braham-snyder/3c5213448def8f4a00a8a6c429f17784/raw/215af83a60858b7032903c522c31aacbb762b7ba/GNU-Emacs-OS-X-ns-set-application-icon.diff"
+      sha256 "0be5a9af190a138c489e5406f21e5a5421e6ad8a3c52f69a2f89517db0e7e7e6"
     end
   end
 

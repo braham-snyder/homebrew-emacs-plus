@@ -40,6 +40,8 @@ relevant part from output of that command for your convenience.
 	Experimental: use a title bar colour inferred by your theme
 --with-no-title-bars
 	Experimental: build with a patch for no title bars on frames (--HEAD has this built-in via undecorated flag)
+--with-ns-set-application-icon
+  Experimental: add elisp function for dynamically changing the current Emacs instance's application icon
 --with-x11
 	Experimental: build with x11 support
 --without-cocoa
