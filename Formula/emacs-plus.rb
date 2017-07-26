@@ -38,6 +38,8 @@ class EmacsPlus < Formula
          "Experimental: build with a patch for no title bars on frames (--HEAD has this built-in via undecorated flag)"
   option "with-natural-title-bar",
          "Experimental: use a title bar colour inferred by your theme"
+  option "with-posn-at-point-hotfix",
+         "Experimental: hotfix GNU Emacs bug #24804"
 
   deprecated_option "cocoa" => "with-cocoa"
   deprecated_option "keep-ctags" => "with-ctags"
@@ -95,6 +97,10 @@ class EmacsPlus < Formula
       url "https://gist.githubusercontent.com/aaronjensen/f45894ddf431ecbff78b1bcf533d3e6b/raw/6a5cd7f57341aba673234348d8b0d2e776f86719/Emacs-25-OS-X-use-vfork.patch"
       sha256 "f2fdbc5adab80f1af01ce120cf33e3b0590d7ae29538999287986beb55ec9ada"
     end
+  end
+
+  if build.with? "posn-at-point-fix"
+    patch :DATA
   end
 
   def install
@@ -220,3 +226,28 @@ class EmacsPlus < Formula
     assert_equal "4", shell_output("#{bin}/emacs --batch --eval=\"(print (+ 2 2))\"").strip
   end
 end
+
+__END__
+diff --git a/src/keyboard.c b/src/keyboard.c
+index bb411e7..65938a5 100644
+--- a/src/keyboard.c
++++ b/src/keyboard.c
+@@ -10790,11 +10790,19 @@ The `posn-' functions access elements of such lists.  */)
+     {
+       Lisp_Object x = XCAR (tem);
+       Lisp_Object y = XCAR (XCDR (tem));
++      Lisp_Object aux_info = XCDR (XCDR (tem));
++      int y_coord = XINT (y);
+
+       /* Point invisible due to hscrolling?  X can be -1 when a
+ 	 newline in a R2L line overflows into the left fringe.  */
+       if (XINT (x) < -1)
+ 	return Qnil;
++      if (!NILP (aux_info) && y_coord < 0)
++	{
++	  int rtop = XINT (XCAR (aux_info));
++
++	  y = make_number (y_coord + rtop);
++	}
+       tem = Fposn_at_x_y (x, y, window, Qnil);
+     }
